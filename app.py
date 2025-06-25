@@ -1,15 +1,17 @@
 from fastapi import FastAPI
-from pairwise_model_selector import get_pairwise_result
-import pandas as pd
-import joblib
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-@app.get("/")
-def root():
-    return {"message": "Heartbridge backend is running successfully."}
+# السماح بالوصول من أي دومين (مهم لتعمل React frontend)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-@app.post("/analyze/")
-def analyze_pairwise(data: dict):
-    result = get_pairwise_result(data)
-    return result
+@app.get("/")
+def read_root():
+    return {"message": "Heartbridge backend is running successfully."}
