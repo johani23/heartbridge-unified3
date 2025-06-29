@@ -1,45 +1,30 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
 function App() {
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [result, setResult] = useState(null);
+  const [response, setResponse] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleFileChange = (e) => {
-    setSelectedFile(e.target.files[0]);
-  };
-
-  const handleUpload = async () => {
-    if (!selectedFile) return;
-
-    const formData = new FormData();
-    formData.append("file", selectedFile);
-
+  const callBackend = async () => {
+    setLoading(true);
     try {
-      const response = await fetch("https://heartbridge-unified3.onrender.com/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await response.json();
-      setResult(data);
+      const res = await fetch('https://heartbridge-unified3.onrender.com/');
+      const data = await res.text(); // backend يرسل نص فقط
+      setResponse(data);
     } catch (error) {
-      console.error("Upload error:", error);
-      setResult({ error: "فشل الاتصال بالسيرفر" });
+      setResponse('❌ Error connecting to backend');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div style={{ padding: "2rem", fontFamily: "Arial" }}>
-      <h1>Heartbridge 🔗 Backend Test</h1>
-      <input type="file" onChange={handleFileChange} />
-      <button onClick={handleUpload} style={{ marginLeft: "1rem" }}>
-        رفع الملف
+    <div style={{ padding: '2rem', fontFamily: 'sans-serif' }}>
+      <h1>Heartbridge Unified UI</h1>
+      <button onClick={callBackend} style={{ padding: '0.5rem 1rem' }}>
+        Connect to Backend
       </button>
-
-      <div style={{ marginTop: "2rem" }}>
-        {result && (
-          <pre>{JSON.stringify(result, null, 2)}</pre>
-        )}
+      <div style={{ marginTop: '1rem', minHeight: '2rem' }}>
+        {loading ? '⏳ Loading...' : response}
       </div>
     </div>
   );
