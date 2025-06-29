@@ -1,53 +1,51 @@
 import React, { useState } from "react";
 
 function App() {
-  const [file, setFile] = useState(null);
-  const [result, setResult] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [output, setOutput] = useState(null);
 
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+  const handleFileChange = (event) => {
+    setSelectedFile(event.target.files[0]);
   };
 
   const handleUpload = async () => {
-    if (!file) return;
+    if (!selectedFile) return;
+
     const formData = new FormData();
-    formData.append("file", file);
-    setLoading(true);
+    formData.append("file", selectedFile); // اسم الحقل لازم يكون "file"
 
     try {
-      const response = await fetch("https://heartbridge-unified3.onrender.com/analyze", {
+      const response = await fetch("https://heartbridge-unified3.onrender.com/upload", {
         method: "POST",
         body: formData,
       });
 
-      const data = await response.json();
-      setResult(data);
+      const result = await response.json();
+      setOutput(result);
     } catch (error) {
-      console.error("Upload failed:", error);
-      setResult({ error: "فشل الاتصال بالخادم" });
-    } finally {
-      setLoading(false);
+      console.error("Upload error:", error);
+      setOutput({ error: "فشل الاتصال بالخادم." });
     }
   };
 
   return (
-    <div style={{ padding: "20px", fontFamily: "sans-serif" }}>
+    <div style={{ padding: "2rem", fontFamily: "Arial" }}>
       <h2>Heartbridge Unified UI</h2>
-      <p>ارفع ملف المحادثة (TXT أو JSON) لتحليل العلاقة:</p>
+      <p>لتحليل العلاقة (TXT أو JSON) ارفع ملف المحادثة:</p>
+
       <input type="file" onChange={handleFileChange} />
-      <button onClick={handleUpload} disabled={loading} style={{ marginLeft: "10px" }}>
-        {loading ? "جاري التحميل..." : "رفع وتحليل"}
+      <button onClick={handleUpload} style={{ marginLeft: "1rem" }}>
+        رفع وتحليل
       </button>
 
-      {result && (
-        <div style={{ marginTop: "20px" }}>
-          <h3>📊 النتيجة:</h3>
-          <pre>{JSON.stringify(result, null, 2)}</pre>
-        </div>
-      )}
+      <div style={{ marginTop: "2rem" }}>
+        <h3>📊 النتيجة:</h3>
+        <pre>{output ? JSON.stringify(output, null, 2) : "لا شيء بعد."}</pre>
+      </div>
     </div>
   );
 }
 
 export default App;
+
+  
