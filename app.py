@@ -1,9 +1,9 @@
-from fastapi import FastAPI, Request, File, UploadFile
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-# ✅ إعدادات CORS
+# إعدادات CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -12,31 +12,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ✅ نقطة اختبار HEAD
+# نقطة اختبار بسيطة
 @app.get("/", include_in_schema=False)
-@app.head("/", include_in_schema=False)
-async def read_root():
-    return {"message": "Heartbridge backend is running successfully."}
+def read_root():
+    return {"message": "Heartbridge backend is running."}
 
-# ✅ مسار رفع الملفات (موجود سابقًا)
-@app.post("/upload")
-async def upload_file(file: UploadFile = File(...)):
-    content = await file.read()
-    text = content.decode("utf-8")
-    snippet = text[:200] + "..." if len(text) > 200 else text
-    return {"status": "success", "preview": snippet}
 
-# ✅ موديل تحليلي مبسط (الخيار B)
-@app.post("/api/predict")
-async def analyze_text(request: Request):
-    data = await request.json()
-    text = data.get("text", "").lower()
-
-    if any(word in text for word in ["ضايق", "ما اعرف", "تعبت", "تردد", "انسحب", "تجاهل"]):
-        output = "⚠️ المؤشرات توحي بوجود ارتباك عاطفي أو تردد في العلاقة."
-    elif any(word in text for word in ["احب", "ارتحت", "تواصل", "اطمئن", "فهمني", "مريح"]):
-        output = "💚 المؤشرات الأولية تعكس نوع من التفاهم أو الشعور الإيجابي."
+# موديل تحليلي بسيط (placeholder logic)
+def simple_analysis(text: str) -> str:
+    if any(word in text.lower() for word in ["زعل", "ما صرت", "أحاول", "تضايقت"]):
+        return "❗ فيه مؤشرات على ضيق شعوري أو تراجع في التواصل. نوصي بنقاش صريح."
+    elif any(word in text.lower() for word in ["أحبك", "اشتقت", "حبيبي"]):
+        return "💚 المؤشرات تعكس مشاعر إيجابية أو تقارب عاطفي."
     else:
-        output = "❔ لم أتعرف على نمط واضح من النص. يمكن إضافة المزيد من الحوار."
+        return "⚠️ لا يمكن تحديد نوع التحليل بدقة من النص الحالي."
 
-    return {"output": output}
+# مسار التحليل
+@app.post("/api/predict")
+async def predict(request: Request):
+    data = await request.json()
+    text = data.get("text", "")
+    result = simple_analysis(text)
+    return {"output": result}
