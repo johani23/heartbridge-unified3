@@ -8,7 +8,7 @@ function App() {
 
   const handleAnalysis = async () => {
     if (!input.trim()) {
-      setResponse('❌ الرجاء إدخال نص لتحليله.');
+      setResponse('❌ الرجاء إدخال نص لتحليله');
       return;
     }
 
@@ -20,15 +20,14 @@ function App() {
       const res = await fetch('https://heartbridge-unified3.onrender.com/api/predict', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ text: input }),
+        body: JSON.stringify({ text: input })
       });
 
       if (!res.ok) throw new Error('Request failed');
-
       const data = await res.json();
-      setResponse(data.output || 'لا يوجد ناتج متاح.');
+      setResponse(data.output || '⚠️ لم يتم الحصول على ناتج.');
     } catch (err) {
       setError(true);
       setResponse('❌ حدث خطأ أثناء الاتصال بالسيرفر. حاول لاحقًا.');
@@ -45,21 +44,21 @@ function App() {
       margin: 'auto',
       textAlign: 'center'
     }}>
-      <h1 style={{ marginBottom: '1rem' }}>نظام Heartbridge - تحليل مبدئي</h1>
+      <h1 style={{ marginBottom: '1rem' }}>نظام <strong>Heartbridge</strong> - تحليل مبدئي</h1>
 
-      {/* Textarea لإدخال النص */}
       <textarea
         value={input}
         onChange={(e) => setInput(e.target.value)}
-        placeholder="📝 أدخل هنا نص المحادثة أو الرسائل بين الطرفين..."
-        rows={5}
+        placeholder="ادخل نص الحوار هنا (مثلاً: كيف بدأ النقاش بينكم، أو موقف معين...)"
+        rows={6}
         style={{
           width: '100%',
           padding: '1rem',
-          borderRadius: '8px',
-          border: '1px solid #ccc',
           fontSize: '1rem',
-          marginBottom: '1.5rem'
+          borderRadius: '6px',
+          border: '1px solid #ccc',
+          marginBottom: '1.5rem',
+          direction: 'rtl'
         }}
       />
 
@@ -80,12 +79,16 @@ function App() {
       </button>
 
       <div style={{ marginTop: '2rem', minHeight: '3rem', color: error ? '#b00020' : '#333' }}>
-        {response && <pre style={{
-          backgroundColor: '#f0f0f0',
-          padding: '1rem',
-          borderRadius: '6px',
-          whiteSpace: 'pre-wrap'
-        }}>{response}</pre>}
+        {response && (
+          <pre style={{
+            backgroundColor: '#f0f0f0',
+            padding: '1rem',
+            borderRadius: '6px',
+            whiteSpace: 'pre-wrap',
+            textAlign: 'right',
+            direction: 'rtl'
+          }}>{response}</pre>
+        )}
       </div>
     </div>
   );
