@@ -1,29 +1,24 @@
 import React, { useState } from 'react';
 
 function App() {
-  const [inputText, setInputText] = useState('');
   const [response, setResponse] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
 
-  const callBack = async () => {
-    if (!inputText.trim()) {
-      setResponse('Please enter a message for analysis.');
-      return;
-    }
-
+  const handleAnalysis = async () => {
     setLoading(true);
+    setError(false);
+    setResponse('');
+
     try {
-      const res = await fetch('https://heartbridge-unified3.onrender.com/api/predict', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ text: inputText }),
-      });
+      const res = await fetch('https://heartbridge-unified3.onrender.com/api/predict');
+      if (!res.ok) throw new Error('Request failed');
+      
       const data = await res.json();
-      setResponse(data.output || 'No response.');
+      setResponse(data.output || 'لا يوجد ناتج متاح.');
     } catch (err) {
-      setResponse('❌ Something went wrong. Please try again.');
+      setError(true);
+      setResponse('❌ حدث خطأ أثناء الاتصال بالسيرفر. حاول لاحقًا.');
     } finally {
       setLoading(false);
     }
@@ -31,56 +26,50 @@ function App() {
 
   return (
     <div style={{
-      maxWidth: '600px',
-      margin: '50px auto',
+      fontFamily: 'Arial, sans-serif',
       padding: '2rem',
-      fontFamily: 'sans-serif',
-      backgroundColor: '#f9f9f9',
-      borderRadius: '12px',
-      boxShadow: '0 0 10px rgba(0,0,0,0.1)'
+      maxWidth: '700px',
+      margin: 'auto',
+      textAlign: 'center'
     }}>
-      <h2 style={{ textAlign: 'center', color: '#333' }}>Heartbridge Analyzer</h2>
+      <h1 style={{ marginBottom: '1rem' }}>نظام Heartbridge - تحليل مبدئي</h1>
 
-      <textarea
-        rows="6"
-        placeholder="📝 Write your message here..."
-        value={inputText}
-        onChange={(e) => setInputText(e.target.value)}
-        style={{
-          width: '100%',
-          padding: '12px',
-          borderRadius: '8px',
-          border: '1px solid #ccc',
-          fontSize: '1rem',
-          marginBottom: '1rem',
-          resize: 'vertical'
-        }}
-      />
-
-      <button
-        onClick={callBack}
-        style={{
-          backgroundColor: '#4a90e2',
-          color: '#fff',
-          padding: '10px 20px',
-          border: 'none',
-          borderRadius: '8px',
-          fontSize: '1rem',
-          cursor: 'pointer'
-        }}
-      >
-        🔍 Analyze
-      </button>
-
+      {/* Placeholder لمكونات مستقبلية مثل الأسئلة */}
       <div style={{
-        marginTop: '1.5rem',
-        backgroundColor: '#fff',
+        border: '1px solid #ccc',
         padding: '1rem',
         borderRadius: '8px',
-        border: '1px solid #eee',
-        minHeight: '80px'
+        marginBottom: '2rem',
+        background: '#f9f9f9'
       }}>
-        {loading ? '⏳ Analyzing...' : response}
+        <p style={{ margin: 0, color: '#666' }}>📌 هنا سيكون الاستبيان لاحقًا (مثلاً: أسئلة الشخصية، الدافع، الخ...)</p>
+      </div>
+
+      {/* زر التحليل */}
+      <button
+        onClick={handleAnalysis}
+        disabled={loading}
+        style={{
+          padding: '0.7rem 2rem',
+          fontSize: '1rem',
+          borderRadius: '6px',
+          backgroundColor: '#007BFF',
+          color: 'white',
+          border: 'none',
+          cursor: loading ? 'not-allowed' : 'pointer'
+        }}
+      >
+        {loading ? '...جارٍ التحليل' : 'تشغيل التحليل'}
+      </button>
+
+      {/* النتيجة */}
+      <div style={{ marginTop: '2rem', minHeight: '3rem', color: error ? '#b00020' : '#333' }}>
+        {response && <pre style={{
+          backgroundColor: '#f0f0f0',
+          padding: '1rem',
+          borderRadius: '6px',
+          whiteSpace: 'pre-wrap'
+        }}>{response}</pre>}
       </div>
     </div>
   );
