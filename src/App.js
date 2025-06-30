@@ -1,19 +1,32 @@
 import React, { useState } from 'react';
 
 function App() {
+  const [input, setInput] = useState('');
   const [response, setResponse] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 
   const handleAnalysis = async () => {
+    if (!input.trim()) {
+      setResponse('❌ الرجاء إدخال نص لتحليله.');
+      return;
+    }
+
     setLoading(true);
     setError(false);
     setResponse('');
 
     try {
-      const res = await fetch('https://heartbridge-unified3.onrender.com/api/predict');
+      const res = await fetch('https://heartbridge-unified3.onrender.com/api/predict', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: input }),
+      });
+
       if (!res.ok) throw new Error('Request failed');
-      
+
       const data = await res.json();
       setResponse(data.output || 'لا يوجد ناتج متاح.');
     } catch (err) {
@@ -34,18 +47,22 @@ function App() {
     }}>
       <h1 style={{ marginBottom: '1rem' }}>نظام Heartbridge - تحليل مبدئي</h1>
 
-      {/* Placeholder لمكونات مستقبلية مثل الأسئلة */}
-      <div style={{
-        border: '1px solid #ccc',
-        padding: '1rem',
-        borderRadius: '8px',
-        marginBottom: '2rem',
-        background: '#f9f9f9'
-      }}>
-        <p style={{ margin: 0, color: '#666' }}>📌 هنا سيكون الاستبيان لاحقًا (مثلاً: أسئلة الشخصية، الدافع، الخ...)</p>
-      </div>
+      {/* Textarea لإدخال النص */}
+      <textarea
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        placeholder="📝 أدخل هنا نص المحادثة أو الرسائل بين الطرفين..."
+        rows={5}
+        style={{
+          width: '100%',
+          padding: '1rem',
+          borderRadius: '8px',
+          border: '1px solid #ccc',
+          fontSize: '1rem',
+          marginBottom: '1.5rem'
+        }}
+      />
 
-      {/* زر التحليل */}
       <button
         onClick={handleAnalysis}
         disabled={loading}
@@ -62,7 +79,6 @@ function App() {
         {loading ? '...جارٍ التحليل' : 'تشغيل التحليل'}
       </button>
 
-      {/* النتيجة */}
       <div style={{ marginTop: '2rem', minHeight: '3rem', color: error ? '#b00020' : '#333' }}>
         {response && <pre style={{
           backgroundColor: '#f0f0f0',
