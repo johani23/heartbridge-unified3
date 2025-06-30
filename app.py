@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, UploadFile, Request
+from fastapi import FastAPI, Request, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -15,22 +15,10 @@ app.add_middleware(
 # ✅ نقطة اختبار HEAD
 @app.get("/", include_in_schema=False)
 @app.head("/", include_in_schema=False)
-def read_root():
+async def read_root():
     return {"message": "Heartbridge backend is running successfully."}
 
-# ✅ مسار تحليل النص من الواجهة
-@app.post("/api/predict")
-async def predict(request: Request):
-    data = await request.json()
-    text = data.get("text", "")
-    if not text:
-        return {"output": "⚠️ لم يتم إرسال أي نص."}
-
-    # 🔁 تحليل وهمي (مؤقت) – غيّره لاحقًا بموديل فعلي
-    preview = text[:200] + "..." if len(text) > 200 else text
-    return {"output": f"✅ التحليل المبدئي جاهز:\n\n{preview}"}
-
-# ✅ (اختياري) مسار رفع ملف – احتياطي
+# ✅ مسار رفع الملفات (موجود سابقًا)
 @app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
     content = await file.read()
@@ -38,4 +26,17 @@ async def upload_file(file: UploadFile = File(...)):
     snippet = text[:200] + "..." if len(text) > 200 else text
     return {"status": "success", "preview": snippet}
 
+# ✅ موديل تحليلي مبسط (الخيار B)
+@app.post("/api/predict")
+async def analyze_text(request: Request):
+    data = await request.json()
+    text = data.get("text", "").lower()
 
+    if any(word in text for word in ["ضايق", "ما اعرف", "تعبت", "تردد", "انسحب", "تجاهل"]):
+        output = "⚠️ المؤشرات توحي بوجود ارتباك عاطفي أو تردد في العلاقة."
+    elif any(word in text for word in ["احب", "ارتحت", "تواصل", "اطمئن", "فهمني", "مريح"]):
+        output = "💚 المؤشرات الأولية تعكس نوع من التفاهم أو الشعور الإيجابي."
+    else:
+        output = "❔ لم أتعرف على نمط واضح من النص. يمكن إضافة المزيد من الحوار."
+
+    return {"output": output}
