@@ -1,10 +1,9 @@
-
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-# ✅ CORS (موجود مسبقًا)
+# ✅ إعدادات CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -13,18 +12,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ✅ مسار الجذر (للتجربة)
-@app.get("/")
+# ✅ نقطة الجذر + دعم HEAD
+@app.get("/", include_in_schema=False)
+@app.head("/", include_in_schema=False)
 def read_root():
     return {"message": "Heartbridge backend is running successfully."}
 
-# ✅ مسار التحميل
+# ✅ مسار رفع الملفات
 @app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
     content = await file.read()
     text = content.decode("utf-8")
-
-    # مؤقتًا: نعيد أول 200 حرف كمحتوى للتجربة
     snippet = text[:200] + "..." if len(text) > 200 else text
-
     return {"status": "success", "preview": snippet}
+
+
