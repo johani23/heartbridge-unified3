@@ -1,102 +1,113 @@
 import React, { useState } from 'react';
 
 function App() {
-  const [text, setText] = useState('');
-  const [comfort, setComfort] = useState('');
-  const [motivation, setMotivation] = useState('');
-  const [response, setResponse] = useState('');
+  const [input, setInput] = useState('');
+  const [response, setResponse] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 
-  const handleSubmit = async () => {
-    if (!text.trim()) {
-      setResponse('❌ الرجاء إدخال نص الحوار.');
+  const handleAnalysis = async () => {
+    if (!input.trim()) {
+      setResponse({ output: '❌ الرجاء إدخال نص لتحليله', popups: [] });
       return;
     }
 
     setLoading(true);
     setError(false);
-    setResponse('');
+    setResponse(null);
 
     try {
       const res = await fetch('https://heartbridge-unified3.onrender.com/api/predict', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          text: `${text}\nالإجابات:\n- شعور الراحة: ${comfort}\n- الدافع: ${motivation}`
-        })
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ text: input })
       });
 
       if (!res.ok) throw new Error('Request failed');
+
       const data = await res.json();
-      setResponse(data.output || '⚠️ لم يتم الحصول على رد.');
+      setResponse(data || { output: '⚠️ لم يتم الحصول على ناتج.', popups: [] });
     } catch (err) {
       setError(true);
-      setResponse('❌ حدث خطأ أثناء الاتصال بالسيرفر.');
+      setResponse({ output: '❌ حدث خطأ أثناء الاتصال بالسيرفر. حاول لاحقًا.', popups: [] });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={{ maxWidth: '700px', margin: 'auto', padding: '2rem', fontFamily: 'Arial' }}>
-      <h1 style={{ textAlign: 'center' }}>💬 نظام Heartbridge</h1>
+    <div style={{
+      fontFamily: 'Arial, sans-serif',
+      padding: '2rem',
+      maxWidth: '700px',
+      margin: 'auto',
+      textAlign: 'center'
+    }}>
+      <h1 style={{ marginBottom: '1rem' }}>نظام <strong>Heartbridge</strong> - تحليل مبدئي</h1>
 
-      <label style={{ display: 'block', marginBottom: '0.5rem' }}>📝 نص الحوار أو الموقف:</label>
       <textarea
-        rows={5}
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder="اكتب هنا..."
-        style={{ width: '100%', padding: '1rem', marginBottom: '1.5rem', borderRadius: '8px' }}
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        placeholder="ادخل نص الحوار هنا (مثلاً: كيف بدأ النقاش بينكم، أو موقف معين...)"
+        rows={6}
+        style={{
+          width: '100%',
+          padding: '1rem',
+          fontSize: '1rem',
+          borderRadius: '6px',
+          border: '1px solid #ccc',
+          marginBottom: '1.5rem',
+          direction: 'rtl'
+        }}
       />
 
-      <label>🌿 هل شعرت براحة عند الحديث معه؟</label>
-      <select
-        value={comfort}
-        onChange={(e) => setComfort(e.target.value)}
-        style={{ width: '100%', padding: '0.6rem', marginBottom: '1rem' }}
-      >
-        <option value="">اختر...</option>
-        <option value="نعم">نعم</option>
-        <option value="لا">لا</option>
-        <option value="أحيانًا">أحيانًا</option>
-      </select>
-
-      <label>💡 ما هو دافعك الرئيسي للدخول في العلاقة؟</label>
-      <select
-        value={motivation}
-        onChange={(e) => setMotivation(e.target.value)}
-        style={{ width: '100%', padding: '0.6rem', marginBottom: '1.5rem' }}
-      >
-        <option value="">اختر...</option>
-        <option value="بحث عن شريك ناضج">بحث عن شريك ناضج</option>
-        <option value="الهروب من ضغط اجتماعي">الهروب من ضغط اجتماعي</option>
-        <option value="احتياج عاطفي قوي">احتياج عاطفي قوي</option>
-        <option value="انجذاب أو فضول">انجذاب أو فضول</option>
-      </select>
-
       <button
-        onClick={handleSubmit}
+        onClick={handleAnalysis}
         disabled={loading}
         style={{
-          backgroundColor: '#007bff',
-          color: 'white',
-          padding: '0.8rem 2rem',
+          padding: '0.7rem 2rem',
+          fontSize: '1rem',
           borderRadius: '6px',
+          backgroundColor: '#007BFF',
+          color: 'white',
           border: 'none',
-          cursor: loading ? 'not-allowed' : 'pointer',
-          fontSize: '1rem'
+          cursor: loading ? 'not-allowed' : 'pointer'
         }}
       >
         {loading ? '...جارٍ التحليل' : 'تشغيل التحليل'}
       </button>
 
-      <div style={{ marginTop: '2rem', background: '#f7f7f7', padding: '1rem', borderRadius: '8px' }}>
-        {response && (
-          <pre style={{ whiteSpace: 'pre-wrap', textAlign: 'right', direction: 'rtl', color: error ? 'red' : 'black' }}>
-            {response}
-          </pre>
+      <div style={{ marginTop: '2rem', minHeight: '3rem', color: error ? '#b00020' : '#333' }}>
+        {response?.output && (
+          <pre style={{
+            backgroundColor: '#f0f0f0',
+            padding: '1rem',
+            borderRadius: '6px',
+            whiteSpace: 'pre-wrap',
+            textAlign: 'right',
+            direction: 'rtl'
+          }}>{response.output}</pre>
+        )}
+
+        {response?.popups && response.popups.length > 0 && (
+          <div style={{
+            background: "#fff3cd",
+            padding: "1rem",
+            borderRadius: "8px",
+            color: "#856404",
+            marginTop: "1rem",
+            textAlign: "right",
+            direction: "rtl"
+          }}>
+            <strong>🧠 ملاحظات ذكية:</strong>
+            <ul>
+              {response.popups.map((popup, idx) => (
+                <li key={idx}>{popup}</li>
+              ))}
+            </ul>
+          </div>
         )}
       </div>
     </div>
