@@ -1,9 +1,9 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-# إعدادات CORS
+# ✅ إعدادات CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -12,25 +12,40 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# نقطة اختبار بسيطة
+# ✅ نقطة اختبار
 @app.get("/", include_in_schema=False)
-def read_root():
-    return {"message": "Heartbridge backend is running."}
+@app.head("/", include_in_schema=False)
+async def read_root():
+    return {"message": "Heartbridge backend is running successfully."}
 
+# ✅ رفع ملفات (اختياري)
+@app.post("/upload")
+async def upload_file(file: UploadFile = File(...)):
+    content = await file.read()
+    text = content.decode("utf-8")
+    snippet = text[:200] + "..." if len(text) > 200 else text
+    return {"status": "success", "preview": snippet}
 
-# موديل تحليلي بسيط (placeholder logic)
-def simple_analysis(text: str) -> str:
-    if any(word in text.lower() for word in ["زعل", "ما صرت", "أحاول", "تضايقت"]):
-        return "❗ فيه مؤشرات على ضيق شعوري أو تراجع في التواصل. نوصي بنقاش صريح."
-    elif any(word in text.lower() for word in ["أحبك", "اشتقت", "حبيبي"]):
-        return "💚 المؤشرات تعكس مشاعر إيجابية أو تقارب عاطفي."
-    else:
-        return "⚠️ لا يمكن تحديد نوع التحليل بدقة من النص الحالي."
-
-# مسار التحليل
+# ✅ موديل تحليلي مبسط + popups ذكية
 @app.post("/api/predict")
-async def predict(request: Request):
+async def analyze_text(request: Request):
     data = await request.json()
-    text = data.get("text", "")
-    result = simple_analysis(text)
-    return {"output": result}
+    text = data.get("text", "").lower()
+
+    popups = []
+
+    if any(word in text for word in ["ضايق", "ما اعرف", "تعبت", "تردد", "انسحب", "تجاهل"]):
+        output = "⚠️ المؤشرات توحي بوجود ارتباك عاطفي أو تردد في العلاقة."
+    elif any(word in text for word in ["احب", "ارتحت", "تواصل", "اطمئن", "فهمني", "مريح"]):
+        output = "💚 المؤشرات الأولية تعكس نوع من التفاهم أو الشعور الإيجابي."
+    else:
+        output = "❔ لم أتعرف على نمط واضح من النص. يمكن إضافة المزيد من الحوار."
+
+    # مؤشرات pop-up ذكية
+    if "احب" in text and "انسحب" in text:
+        popups.append("🧠 تقول إنك تحب، لكن فيه كلمات تدل على انسحاب. هل العلاقة فعلاً متزنة؟")
+
+    if "ارتحت" in text and "يتجاهلني" in text:
+        popups.append("⚠️ فيه تعارض بين شعور الراحة ووجود تجاهل. تأكد أن الراحة ما تكون مؤقتة.")
+
+    return {"output": output, "popups": popups}
