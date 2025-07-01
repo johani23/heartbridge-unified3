@@ -38,7 +38,8 @@ function Analyzer() {
 
   return (
     <div className="app-container">
-      <h2>تحليل العلاقة {cluster && `- نمطك: ${cluster}`}</h2>
+      <h2>تحليل العلاقة - {cluster && `نمطك: ${cluster}`}</h2>
+
       <textarea
         className="input-box"
         value={input}
@@ -46,26 +47,20 @@ function Analyzer() {
         placeholder="انسخ نص الحوار هنا..."
         rows={6}
       />
+
       <br />
       <button className="analyze-button" onClick={handleAnalysis} disabled={loading}>
         {loading ? '...جارٍ التحليل' : 'ابدأ التحليل'}
       </button>
 
-      {response && (
-        <div className={`result-box ${response.output.includes('❌') ? 'error' : ''}`}>
-          <h3>🔍 التوصية النهائية:</h3>
-          <div className="output-text">{response.output}</div>
+      {response?.output && <div className="result-box"><pre className="output-text">{response.output}</pre></div>}
 
-          {response.popups?.length > 0 && (
-            <div className="popup-box">
-              <strong>ملاحظات إضافية:</strong>
-              <ul>
-                {response.popups.map((popup, i) => (
-                  <li key={i}>{popup}</li>
-                ))}
-              </ul>
-            </div>
-          )}
+      {response?.popups?.length > 0 && (
+        <div className="popup-box">
+          <strong>🧠 ملاحظات ذكية:</strong>
+          <ul>
+            {response.popups.map((popup, i) => <li key={i}>{popup}</li>)}
+          </ul>
         </div>
       )}
     </div>
