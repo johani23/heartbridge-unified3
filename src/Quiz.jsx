@@ -1,8 +1,9 @@
-import { useState } from "react";
+iimport React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-export default function Quiz() {
-  const [answers, setAnswers] = useState({ q1: "", q2: "", q3: "" });
-  const [result, setResult] = useState("");
+function Quiz() {
+  const [answers, setAnswers] = useState({ q1: '', q2: '', q3: '' });
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setAnswers({ ...answers, [e.target.name]: e.target.value });
@@ -10,62 +11,50 @@ export default function Quiz() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const total = ["q1", "q2", "q3"].reduce((sum, key) => sum + Number(answers[key] || 0), 0);
 
-    let resultText = "";
-    if (total <= 5) resultText = "🕊️ نمطك: The Silent Doubter – تفضل الصمت وتُخفي مشاعرك.";
-    else if (total <= 8) resultText = "🌿 نمطك: The Idealist – توازن نسبي لكن تحتاج وضوح أكبر.";
-    else if (total <= 10) resultText = "💗 نمطك: The Rescuer – تبذل كثيرًا وتحتاج تأكيدًا دائمًا.";
-    else resultText = "🔥 نمطك: The Burnt Survivor – مررت بخيبة أو صدمة وتخشى التكرار.";
+    const total = Object.values(answers).reduce((acc, val) => acc + Number(val), 0);
+    let cluster = 'The Idealist';
 
-    setResult(resultText);
-    localStorage.setItem("heartbridge_cluster", resultText);
+    if (total <= 5) cluster = 'The Silent Doubter';
+    else if (total <= 8) cluster = 'The Idealist';
+    else if (total <= 10) cluster = 'The Rescuer';
+    else cluster = 'The Burnt Survivor';
+
+    localStorage.setItem('userCluster', cluster);
+    navigate('/analyze');
   };
 
   return (
-    <div className="max-w-2xl mx-auto mt-10 p-4">
-      <h2 className="text-2xl font-bold mb-4">استبيان تحليل الشخصية</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="quiz">
+      <h2>استبيان تحليل الشخصية</h2>
+      <form onSubmit={handleSubmit}>
+        <label>١. ما مدى تعبيرك عن مشاعرك؟</label>
+        <input type="radio" name="q1" value="1" onChange={handleChange} /> نادرًا
+        <input type="radio" name="q1" value="2" onChange={handleChange} /> أحيانًا
+        <input type="radio" name="q1" value="3" onChange={handleChange} /> غالبًا
+        <input type="radio" name="q1" value="4" onChange={handleChange} /> دائمًا
 
-        <div>
-          <label>١. ما مدى تعبيرك عن مشاعرك؟</label>
-          <select name="q1" onChange={handleChange} className="w-full border p-2 rounded">
-            <option value="">اختر...</option>
-            <option value="1">نادرًا</option>
-            <option value="2">أحيانًا</option>
-            <option value="3">غالبًا</option>
-            <option value="4">دائمًا</option>
-          </select>
-        </div>
+        <br />
 
-        <div>
-          <label>٢. كيف تتعامل مع الخلاف؟</label>
-          <select name="q2" onChange={handleChange} className="w-full border p-2 rounded">
-            <option value="">اختر...</option>
-            <option value="1">أتجنب المواجهة</option>
-            <option value="2">أهدأ ثم أتكلم</option>
-            <option value="3">أتكلم فورًا</option>
-            <option value="4">أُصرّ على موقفي</option>
-          </select>
-        </div>
+        <label>٢. كيف تتعامل مع الخلافات؟</label>
+        <input type="radio" name="q2" value="1" onChange={handleChange} /> أتجنب
+        <input type="radio" name="q2" value="2" onChange={handleChange} /> أهدأ ثم أتكلم
+        <input type="radio" name="q2" value="3" onChange={handleChange} /> أتكلم فورًا
+        <input type="radio" name="q2" value="4" onChange={handleChange} /> أُصرّ دائمًا
 
-        <div>
-          <label>٣. ما مدى حاجتك للاهتمام؟</label>
-          <select name="q3" onChange={handleChange} className="w-full border p-2 rounded">
-            <option value="">اختر...</option>
-            <option value="1">ضعيفة</option>
-            <option value="2">متوسطة</option>
-            <option value="3">عالية</option>
-            <option value="4">مفرطة</option>
-          </select>
-        </div>
+        <br />
 
-        <button type="submit" className="bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700">
-          احسب النتيجة
-        </button>
+        <label>٣. حاجتك للاهتمام؟</label>
+        <input type="radio" name="q3" value="1" onChange={handleChange} /> ضعيفة
+        <input type="radio" name="q3" value="2" onChange={handleChange} /> متوسطة
+        <input type="radio" name="q3" value="3" onChange={handleChange} /> عالية
+        <input type="radio" name="q3" value="4" onChange={handleChange} /> مفرطة
+
+        <br />
+        <button type="submit">احسب النتيجة</button>
       </form>
-
-      {result && <div className="mt-6 bg-gray-100 p-4 rounded shadow">{result}</div>}
     </div>
   );
 }
+
+export default Quiz;
