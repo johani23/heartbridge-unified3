@@ -5,10 +5,14 @@ function Analyzer() {
   const [response, setResponse] = useState(null);
   const [loading, setLoading] = useState(false);
   const [cluster, setCluster] = useState('');
+  const [quizAnswers, setQuizAnswers] = useState(null);
 
   useEffect(() => {
     const savedCluster = localStorage.getItem('userCluster');
     if (savedCluster) setCluster(savedCluster);
+
+    const savedAnswers = localStorage.getItem('quizAnswers');
+    if (savedAnswers) setQuizAnswers(JSON.parse(savedAnswers));
   }, []);
 
   const handleAnalysis = async () => {
@@ -21,11 +25,16 @@ function Analyzer() {
     setResponse(null);
 
     try {
-      const res = await fetch('https://heartbridge-api-backend.onrender.com/dynamic-recommendation', {
+      const payload = {
+        text: input,
+        cluster,
+        quizAnswers
+      };
 
+      const res = await fetch('https://heartbridge-api-backend.onrender.com/dynamic-recommendation', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: input, cluster })
+        body: JSON.stringify(payload)
       });
 
       const data = await res.json();
@@ -54,13 +63,19 @@ function Analyzer() {
         {loading ? '...جارٍ التحليل' : 'ابدأ التحليل'}
       </button>
 
-      {response?.output && <div className="result-box"><pre className="output-text">{response.output}</pre></div>}
+      {response?.output && (
+        <div className="result-box">
+          <pre className="output-text">{response.output}</pre>
+        </div>
+      )}
 
       {response?.popups?.length > 0 && (
         <div className="popup-box">
           <strong>🧠 ملاحظات ذكية:</strong>
           <ul>
-            {response.popups.map((popup, i) => <li key={i}>{popup}</li>)}
+            {response.popups.map((popup, i) => (
+              <li key={i}>{popup}</li>
+            ))}
           </ul>
         </div>
       )}
