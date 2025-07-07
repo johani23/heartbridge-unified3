@@ -21,7 +21,8 @@ function Analyzer() {
     setResponse(null);
 
     try {
-      const res = await fetch('https://heartbridge-unified3.onrender.com/api/predict', {
+      const res = await fetch('https://heartbridge-api-backend.onrender.com/dynamic-recommendation', {
+
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: input, cluster })
