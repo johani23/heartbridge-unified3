@@ -31,7 +31,7 @@ function Analyzer() {
         quizAnswers
       };
 
-      const res = await fetch('https://heartbridge-api-backend.onrender.com/dynamic-recommendation', {
+      const res = await fetch('https://heartbridge-api-backend-5.onrender.com/dynamic-recommendation', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
