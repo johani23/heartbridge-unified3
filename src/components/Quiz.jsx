@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -50,20 +49,28 @@ function Quiz() {
   const [answers, setAnswers] = useState({});
 
   const handleAnswer = (value) => {
-    const currentQuestion = totalQuestions[currentIndex];
-    const updatedAnswers = {
+    const current = totalQuestions[currentIndex];
+    const updated = {
       ...answers,
-      [currentQuestion.id]: {
-        category: currentQuestion.category,
-        answer: value
-      }
+      [current.id]: {
+        category: current.category,
+        answer: value,
+      },
     };
-    setAnswers(updatedAnswers);
+
+    setAnswers(updated);
 
     if (currentIndex + 1 < totalQuestions.length) {
       setCurrentIndex(currentIndex + 1);
     } else {
-      localStorage.setItem('quizAnswers', JSON.stringify(updatedAnswers));
+      // Save results locally
+      localStorage.setItem('quizAnswers', JSON.stringify(updated));
+
+      // You may assign a default cluster if needed here
+      if (!localStorage.getItem('userCluster')) {
+        localStorage.setItem('userCluster', 'The Silent Doubter');
+      }
+
       navigate('/analyzer');
     }
   };
@@ -71,21 +78,21 @@ function Quiz() {
   const current = totalQuestions[currentIndex];
 
   return (
-    <div className="quiz-container">
-      <h2>الاستبيان المبدئي</h2>
-      <p>
+    <div className="quiz-container" style={{ padding: '40px', textAlign: 'center' }}>
+      <h2>🧠 الاستبيان المبدئي</h2>
+      <p style={{ fontSize: '18px' }}>
         {current.category === 'user' && '🧒 عن طفولتك'}
         {current.category === 'partner' && '💬 عن شريكك'}
         {current.category === 'expectation' && '🎯 عن توقعاتك'}
       </p>
-      <h3>{current.text}</h3>
-      <div className="button-group">
-        <button onClick={() => handleAnswer('نعم')}>نعم</button>
-        <button onClick={() => handleAnswer('لا')}>لا</button>
-        <button onClick={() => handleAnswer('أحيانًا')}>أحيانًا</button>
+      <h3 style={{ margin: '30px 0' }}>{current.text}</h3>
+      <div className="button-group" style={{ marginBottom: '20px' }}>
+        <button onClick={() => handleAnswer('نعم')} style={{ margin: '0 10px' }}>نعم</button>
+        <button onClick={() => handleAnswer('لا')} style={{ margin: '0 10px' }}>لا</button>
+        <button onClick={() => handleAnswer('أحيانًا')} style={{ margin: '0 10px' }}>أحيانًا</button>
       </div>
       <p>
-        {currentIndex + 1} / {totalQuestions.length}
+        السؤال {currentIndex + 1} من {totalQuestions.length}
       </p>
     </div>
   );
