@@ -12,7 +12,7 @@ function App() {
     try {
       setLoading(true);
       const response = await axios.post(
-        'https://heartbridge-api-backend.onrender.com/dynamic-recommendation',
+        'http://127.0.0.1:5000/dynamic-recommendation',
         {
           text,
           cluster,
@@ -31,10 +31,10 @@ function App() {
   const askAI = async () => {
     try {
       const response = await axios.post(
-        'https://heartbridge-api-backend.onrender.com/chat',
+        'http://127.0.0.1:5000/analyze', // ✅ Updated
         { prompt: text }
       );
-      setAiResponse(response.data.reply);
+      setAiResponse(response.data.response); // ✅ Updated key name
     } catch (err) {
       console.error(err);
       alert('فشل الاتصال بـ Chat AI');
