@@ -1,3 +1,4 @@
+// ✅ Analyzer.jsx + Landing.jsx (React components) — Local backend support
 import React, { useState, useEffect } from 'react';
 
 function Analyzer() {
@@ -79,6 +80,19 @@ function Analyzer() {
           </ul>
         </div>
       )}
+    </div>
+  );
+}
+
+// ✅ Landing.jsx example structure
+export function Landing({ onStart }) {
+  return (
+    <div className="landing-container">
+      <h1>مرحبًا بك في Heartbridge</h1>
+      <p>نساعدك على تحليل علاقتك واكتشاف مدى التوافق العاطفي والنفسي.</p>
+      <button className="start-button" onClick={onStart}>
+        ابدأ الآن
+      </button>
     </div>
   );
 }
