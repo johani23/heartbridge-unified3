@@ -12,7 +12,7 @@ function App() {
     try {
       setLoading(true);
       const response = await axios.post(
-        'http://127.0.0.1:5000/dynamic-recommendation',
+        'http://127.0.0.1:8000/dynamic-recommendation', // ✅ updated
         {
           text,
           cluster,
@@ -31,10 +31,10 @@ function App() {
   const askAI = async () => {
     try {
       const response = await axios.post(
-        'http://127.0.0.1:5000/analyze', // ✅ Updated
+        'http://127.0.0.1:8000/analyze', // ✅ updated
         { prompt: text }
       );
-      setAiResponse(response.data.response); // ✅ Updated key name
+      setAiResponse(response.data.response);
     } catch (err) {
       console.error(err);
       alert('فشل الاتصال بـ Chat AI');
