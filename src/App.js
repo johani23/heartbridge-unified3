@@ -12,7 +12,7 @@ function App() {
     try {
       setLoading(true);
       const response = await axios.post(
-        'http://127.0.0.1:8000/dynamic-recommendation', // ✅ updated
+        'https://heartbridge-api-backend.onrender.com/dynamic-recommendation', // ✅ تم تحديث الرابط
         {
           text,
           cluster,
@@ -31,7 +31,7 @@ function App() {
   const askAI = async () => {
     try {
       const response = await axios.post(
-        'http://127.0.0.1:8000/analyze', // ✅ updated
+        'https://heartbridge-api-backend.onrender.com/analyze', // ✅ تم تحديث الرابط
         { prompt: text }
       );
       setAiResponse(response.data.response);
