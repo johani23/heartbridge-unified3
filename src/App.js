@@ -8,17 +8,17 @@ function App() {
   const [aiResponse, setAiResponse] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // يستخدم REACT_APP_API_URL من .env
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+
   const handleAnalyze = async () => {
     try {
       setLoading(true);
-      const response = await axios.post(
-        'https://heartbridge-api-backend.onrender.com/dynamic-recommendation', // ✅ تم تحديث الرابط
-        {
-          text,
-          cluster,
-          quizAnswers: {}
-        }
-      );
+      const response = await axios.post(`${API_URL}/dynamic-recommendation`, {
+        text,
+        cluster,
+        quizAnswers: {}
+      });
       setResult(response.data);
       setLoading(false);
     } catch (err) {
@@ -30,10 +30,9 @@ function App() {
 
   const askAI = async () => {
     try {
-      const response = await axios.post(
-        'https://heartbridge-api-backend.onrender.com/analyze', // ✅ تم تحديث الرابط
-        { prompt: text }
-      );
+      const response = await axios.post(`${API_URL}/analyze`, {
+        prompt: text
+      });
       setAiResponse(response.data.response);
     } catch (err) {
       console.error(err);
